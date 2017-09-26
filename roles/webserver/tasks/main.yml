@@ -1,0 +1,51 @@
+---
+- name: Install java
+  apt: 
+    name: default-jre
+    update_cache: yes
+    state: installed
+
+#- include: tomcat_manual.yml
+
+- name: Install tomcat 8
+  apt:
+    name: tomcat8
+    state: latest
+
+- name: Run tomcat on non-default port
+  copy: 
+    src: server.xml
+    dest: /etc/tomcat8/
+    owner: root
+    group: tomcat8
+    mode: 0640
+
+- name: Remove old app
+  file: 
+    path: "/var/lib/tomcat8/webapps/{{ item }}"
+    state: absent
+  with_items: 
+    - "fagdag.war"
+    - "fagdag"
+
+- name: Deploy app
+  copy:
+    src: fagdag.war
+    dest: /var/lib/tomcat8/webapps/
+
+- name: Restart tomcat service
+  service:
+    name: tomcat8
+    state: restarted
+
+- name: Install nginx
+  apt: 
+    name: nginx
+    state: latest
+
+- name: Configure nginx
+  copy: 
+    src: 
+    dest:
+
+- name: Create symlink to enable config
